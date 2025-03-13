@@ -1,6 +1,8 @@
 # EZARR
 [![Check running](https://github.com/Luctia/ezarr/actions/workflows/check_running.yml/badge.svg)](https://github.com/Luctia/ezarr/actions/workflows/check_running.yml)
 
+This is a fork of [Luctia/ezarr](https://github.com/Luctia/ezarr), tweaked for personal use and tinkering.
+
 Ezarr is a project built to make it EZ to deploy a Servarr mediacenter on an Ubuntu server. The
 badge above means that the shell script and docker-compose file in this repository at least *don't
 crash*. It doesn't necessarily mean it will run well on your system ;) 
