@@ -1,6 +1,69 @@
 ---
 name: ezarr
 services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: # required, may need port. See gethomepage.dev/installation/#homepage_allowed_hosts
+      PUID: ${HOMEPAGE_UID}
+      PGID: ${MEDIACENTER_GID}
+    ports:
+      - 3000:3000
+    volumes:
+      - ${ROOT_DIR}/config/homepage-config:/app/config # Make sure your local config directory exists
+      - /var/run/docker.sock:/var/run/docker.sock:ro # optional, for docker integrations
+    restart: unless-stopped
+
+  authelia:
+    image: 'authelia/authelia'
+    container_name: 'authelia'
+    volumes:
+      - '${ROOT_DIR}/config/authelia-config:/config'
+    networks:
+      net: {}
+    labels:
+      traefik.enable: 'true'
+      traefik.http.routers.authelia.rule: 'Host(`authelia.example.com`)'
+      traefik.http.routers.authelia.entrypoints: 'https'
+      traefik.http.routers.authelia.tls: 'true'
+      traefik.http.routers.authelia.tls.certresolver: 'letsencrypt'
+      traefik.http.middlewares.authelia.forwardauth.address: 'http://authelia:9091/api/authz/forward-auth'  # yamllint disable-line rule:line-length
+      traefik.http.middlewares.authelia.forwardauth.trustForwardHeader: 'true'
+      traefik.http.middlewares.authelia.forwardauth.authResponseHeaders: 'Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
+    restart: 'unless-stopped'
+    healthcheck:
+      ## In production the healthcheck section should be commented.
+      disable: true
+    environment:
+      TZ: 'TZ=${TIMEZONE}'
+
+  swag:
+    image: lscr.io/linuxserver/swag:latest
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=${SWAG_UID}
+      - PGID=${MEDIACENTER_GID}
+      - TZ=${TIMEZONE}
+      - URL=linuxserver-test.com
+      - SUBDOMAINS=wildcard
+      - VALIDATION=dns
+      - DNSPLUGIN=cloudflare #optional
+      - PROPAGATION= #optional
+      - DUCKDNSTOKEN= #optional
+      - EMAIL= #optional
+      - ONLY_SUBDOMAINS=false #optional
+      - EXTRA_DOMAINS= #optional
+      - STAGING=false #optional
+    volumes:
+      - ${ROOT_DIR}/config/swag-config:/config
+    ports:
+      - 443:443
+      - 80:80 #optional
+    restart: unless-stopped
+
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
@@ -104,20 +167,6 @@ services:
       - "6767:6767"
     restart: unless-stopped
 
-  overseerr:
-    image: sctx/overseerr:latest
-    container_name: overseerr
-    environment:
-      - PUID=${OVERSEERR_UID}
-      - PGID=${MEDIACENTER_GID}
-      - UMASK=002
-      - TZ=${TIMEZONE}
-    volumes:
-      - ${ROOT_DIR}/config/overseerr-config:/app/config
-    ports:
-      - "5055:5055"
-    restart: unless-stopped
-
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
     container_name: jellyseerr
@@ -145,20 +194,6 @@ services:
     ports:
       - "9696:9696"
     restart: unless-stopped
-  
-  jackett:
-    image: lscr.io/linuxserver/jackett:latest
-    container_name: jackett
-    environment:
-      - PUID=${JACKETT_UID}
-      - PGID=${MEDIACENTER_GID}
-      - UMASK=002
-      - TZ=${TIMEZONE}    
-    volumes:
-      - ${ROOT_DIR}/config/jackett-config:/config
-    ports:
-      - 9117:9117
-    restart: unless-stopped
 
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
@@ -170,36 +205,6 @@ services:
       - TZ=${TIMEZONE}
     ports:
       - "8191:8191"
-    restart: unless-stopped
-
-  plex:
-    image: lscr.io/linuxserver/plex:latest
-    container_name: plex
-    network_mode: host
-    environment:
-      - PUID=${PLEX_UID}
-      - PGID=${MEDIACENTER_GID}
-      - VERSION=docker
-      - PLEX_CLAIM=${PLEX_CLAIM}
-    volumes:
-      - ${ROOT_DIR}/config/plex-config:/config
-      - ${ROOT_DIR}/data/media:/media
-    restart: unless-stopped
-
-  tautulli:
-    image: lscr.io/linuxserver/tautulli:latest
-    container_name: tautulli
-    # commented out because plex can also run outside of docker
-    #depends_on: 
-    #  - plex
-    environment:
-      - PUID=${UID}
-      - PGID=${MEDIACENTER_GID}
-      - TZ=${TIMEZONE}
-    volumes:
-      - ${ROOT_DIR}/config/tautulli-config:/config
-    ports:
-      - "8181:8181"
     restart: unless-stopped
 
   jellyfin:
@@ -250,3 +255,6 @@ services:
       - "8081:8080"
     restart: unless-stopped
 
+networks:
+  net:
+    driver: 'bridge'
