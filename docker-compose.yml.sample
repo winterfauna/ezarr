@@ -15,29 +15,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro # optional, for docker integrations
     restart: unless-stopped
 
-  authelia:
-    image: 'authelia/authelia'
-    container_name: 'authelia'
-    volumes:
-      - '${ROOT_DIR}/config/authelia-config:/config'
-    networks:
-      net: {}
-    labels:
-      traefik.enable: 'true'
-      traefik.http.routers.authelia.rule: 'Host(`authelia.example.com`)'
-      traefik.http.routers.authelia.entrypoints: 'https'
-      traefik.http.routers.authelia.tls: 'true'
-      traefik.http.routers.authelia.tls.certresolver: 'letsencrypt'
-      traefik.http.middlewares.authelia.forwardauth.address: 'http://authelia:9091/api/authz/forward-auth'  # yamllint disable-line rule:line-length
-      traefik.http.middlewares.authelia.forwardauth.trustForwardHeader: 'true'
-      traefik.http.middlewares.authelia.forwardauth.authResponseHeaders: 'Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
-    restart: 'unless-stopped'
-    healthcheck:
-      ## In production the healthcheck section should be commented.
-      disable: true
-    environment:
-      TZ: 'TZ=${TIMEZONE}'
-
   swag:
     image: lscr.io/linuxserver/swag:latest
     container_name: swag
@@ -254,7 +231,3 @@ services:
     ports:
       - "8081:8080"
     restart: unless-stopped
-
-networks:
-  net:
-    driver: 'bridge'
