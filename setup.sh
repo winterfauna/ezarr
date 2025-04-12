@@ -24,6 +24,12 @@ sudo useradd sabnzbd -u $SABNZBD_UID
 sudo useradd jellyseerr -u $JELLYSEERR_UID
 sudo useradd bazarr -u $BAZARR_UID
 sudo useradd audiobookshelf -u $AUDIOBOOKSHELF_UID
+# new shit
+sudo useradd swag -u $SWAG_UID
+sudo useradd authelia -u $AUTHELIA_UID
+sudo useradd homepage -u $HOMEPAGE_UID
+#sudo useradd wireguard -u $WIREGUARD_UID
+#sudo useradd homeassistant -u $HOMEASSISTANT_UID
 sudo groupadd mediacenter -g $MEDIACENTER_GID
 
 # Adds current user to the mediacenter group. This is recommended so that you can still have access to files inside the ezarr folder structure for manual control.
@@ -47,10 +53,17 @@ sudo usermod -a -G mediacenter sabnzbd
 sudo usermod -a -G mediacenter jellyseerr
 sudo usermod -a -G mediacenter bazarr
 sudo usermod -a -G mediacenter audiobookshelf
+#New shit
+sudo usermod -a -G mediacenter swag
+sudo usermod -a -G mediacenter homepage
+sudo usermod -a -G mediacenter authelia
+#sudo usermod -a -G mediacenter homeassistant
+#sudo usermod -a -G mediacenter wireguard
+
 
 # Make directories
 # ${ROOT_DIR:-.}/ means take the value from ROOT_DIR value, if failed or empty place it in the current folder
-sudo mkdir -pv ${ROOT_DIR:-.}/config/{sonarr,radarr,lidarr,readarr,mylar,prowlarr,qbittorrent,jackett,audiobookshelf,overseerr,plex,jellyfin,tautulli,sabnzbd,jellyseerr,bazarr}-config
+sudo mkdir -pv ${ROOT_DIR:-.}/config/{sonarr,radarr,lidarr,readarr,mylar,prowlarr,qbittorrent,jackett,audiobookshelf,overseerr,plex,jellyfin,tautulli,sabnzbd,jellyseerr,bazarr,swag,authelia,homepage,homeassistant,wireguard}-config
 sudo mkdir -pv ${ROOT_DIR:-.}/data/{torrents,usenet,media}/{tv,movies,music,books,comics,audiobooks,podcasts,audiobookshelf-metadata}
 
 # Set permissions
@@ -74,5 +87,10 @@ sudo chown -R sabnzbd:mediacenter ${ROOT_DIR:-.}/config/sabnzbd-config
 sudo chown -R jellyseerr:mediacenter ${ROOT_DIR:-.}/config/jellyseerr-config
 sudo chown -R bazarr:mediacenter ${ROOT_DIR:-.}/config/bazarr-config
 sudo chown -R audiobookshelf:mediacenter ${ROOT_DIR:-.}/config/audiobookshelf-config
+sudo chown -R swag:mediacenter ${ROOT_DIR:-.}/config/swag-config
+sudo chown -R authelia:mediacenter ${ROOT_DIR:-.}/config/authelia-config
+sudo chown -R homepage:mediacenter ${ROOT_DIR:-.}/config/homepage-config
+sudo chown -R wireguard:mediacenter ${ROOT_DIR:-.}/config/wireguard-config
+sudo chown -R homeassistant:mediacenter ${ROOT_DIR:-.}/config/homeassistant-config
 
 echo "Done! It is recommended to reboot now."
