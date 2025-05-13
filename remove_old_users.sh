@@ -19,5 +19,12 @@ sudo userdel overseerr
 sudo userdel jellyseerr
 sudo userdel qbittorrent
 sudo userdel sabnzbd
+sudo userdel swag
+sudo userdel authelia
+sudo userdel homepage
+sudo userdel glances
+sudo userdel speedtest
+sudo userdel gluetun
+#sudo userdel homeassistant
 sudo groupdel mediacenter
 
