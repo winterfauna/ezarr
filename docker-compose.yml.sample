@@ -31,7 +31,8 @@ services:
       - SERVER_COUNTRIES=Netherlands
       # Server list updater
       # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
-      - UPDATER_PERIOD=
+      - UPDATER_PERIOD=24h
+
   dockerproxy:
     image: ghcr.io/tecnativa/docker-socket-proxy:latest
     container_name: dockerproxy
@@ -298,14 +299,16 @@ services:
     restart: unless-stopped
     container_name: speedtest-tracker
     ports:
-      - 8080:80
-      - 8443:443
+      - 9080:80 #these were 8080 and 8443, but have been updated bc they conflicted with qbittorrent
+      - 9443:443
     environment:
       - PUID=${SPEEDTEST_UID}
       - PGID=${MEDIACENTER_GID}
       - TZ=${TIMEZONE}
+      - DISPLAY_TIMEZONE=${TIMEZONE}
       - APP_KEY=base64:+oiq7T218bQUJe7ZI8znt765io3bUVUcQ8xeC/XSimc=
       - DB_CONNECTION=sqlite
+      - SPEEDTEST_SCHEDULE="5 14 * * *"
     volumes:
-      - ${ROOT_DIR)/config/speedtest-tracker-config:/config
+      - ${ROOT_DIR}/config/speedtest-tracker-config:/config
       #- /path/to-custom-ssl-keys:/config/keys
