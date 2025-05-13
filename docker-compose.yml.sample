@@ -1,6 +1,37 @@
 ---
 name: ezarr
 services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    # line above must be uncommented to allow external containers to connect.
+    # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md#external-container-to-gluetun
+    #command: update -enduser -providers surfshark # This is here to update servers, if needed.
+    ports:
+      - 8080:8080 # access to the Qbittorrent webclient
+      - 8888:8888/tcp # HTTP proxy
+      - 8388:8388/tcp # Shadowsocks
+      - 8388:8388/udp # Shadowsocks
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ${ROOT_DIR}/config/gluetun-config:/config
+    environment:
+      # See https://github.com/qdm12/gluetun-wiki/tree/main/setup#setup
+      # and also https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/surfshark.md
+      - PUID=${SWAG_UID}
+      - PGID=${MEDIACENTER_GID}
+      - TZ=${TIMEZONE}
+      - VPN_SERVICE_PROVIDER=surfshark
+      - VPN_TYPE=wireguard
+      #- WIREGUARD_PRIVATE_KEY=wOEI9rqqbDwnN8/Bpp22sVz48T71vJ4fYmFWujulwUU=
+      #- WIREGUARD_ADDRESSES=10.64.222.21/16
+      - SERVER_COUNTRIES=Netherlands
+      # Server list updater
+      # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
+      - UPDATER_PERIOD=
   dockerproxy:
     image: ghcr.io/tecnativa/docker-socket-proxy:latest
     container_name: dockerproxy
@@ -216,6 +247,8 @@ services:
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
+    # Network mode should be uncommented if/when this service is being run through gluetun
+    #network_mode: "service:gluetun"
     environment:
       - PUID=${QBITTORRENT_UID}
       - PGID=${MEDIACENTER_GID}
@@ -259,3 +292,20 @@ services:
       # Uncomment the below line if you want glances to display host OS detail instead of container's
       - /etc/os-release:/etc/os-release:ro
       - ${ROOT_DIR}/config/glances-config:/config
+
+  speedtest-tracker:
+    image: lscr.io/linuxserver/speedtest-tracker:latest
+    restart: unless-stopped
+    container_name: speedtest-tracker
+    ports:
+      - 8080:80
+      - 8443:443
+    environment:
+      - PUID=${SPEEDTEST-TRACKER_UID}
+      - PGID=${MEDIACENTER_GID}
+      - TZ=${TIMEZONE}
+      - APP_KEY=base64:+oiq7T218bQUJe7ZI8znt765io3bUVUcQ8xeC/XSimc=
+      - DB_CONNECTION=sqlite
+    volumes:
+      - ${ROOT_DIR)/config/speedtest-tracker-config:/config
+      #- /path/to-custom-ssl-keys:/config/keys
