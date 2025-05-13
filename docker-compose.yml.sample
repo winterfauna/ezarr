@@ -33,7 +33,43 @@ services:
       # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
       - UPDATER_PERIOD=24h
 
-  dockerproxy:
+authelia:
+    image: ghcr.io/authelia/authelia:latest
+    container_name: authelia
+    user: "13025:13025"
+    environment:
+      - TZ=${TIMEZONE}
+    volumes:
+      - /${ROOT_DIR}/config/authelia-config:/config
+    restart: unless-stopped
+
+  swag:
+    image: lscr.io/linuxserver/swag:latest
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=${SWAG_UID}
+      - PGID=${MEDIACENTER_GID}
+      - TZ=${TIMEZONE}
+      - URL=cyanproject.duckdns.org
+      - SUBDOMAINS=wildcard
+      - VALIDATION=dns
+      - DNSPLUGIN=cloudflare #optional
+      - PROPAGATION= #optional
+      - DUCKDNSTOKEN=d1a76609-79e3-48fd-9448-e3c5714301b2 #optional
+      - EMAIL= #optional
+      - ONLY_SUBDOMAINS=false #optional
+      - EXTRA_DOMAINS= #optional
+      - STAGING=false #optional
+    volumes:
+      - ${ROOT_DIR}/config/swag-config:/config
+    ports:
+      - 443:443
+      - 80:80 #optional
+    restart: unless-stopped
+
+dockerproxy:
     image: ghcr.io/tecnativa/docker-socket-proxy:latest
     container_name: dockerproxy
     environment:
@@ -59,32 +95,6 @@ services:
     volumes:
       - ${ROOT_DIR}/config/homepage-config:/app/config # Make sure your local config directory exists
       - /var/run/docker.sock:/var/run/docker.sock:ro # optional, for docker integrations
-    restart: unless-stopped
-
-  swag:
-    image: lscr.io/linuxserver/swag:latest
-    container_name: swag
-    cap_add:
-      - NET_ADMIN
-    environment:
-      - PUID=${SWAG_UID}
-      - PGID=${MEDIACENTER_GID}
-      - TZ=${TIMEZONE}
-      - URL=linuxserver-test.com
-      - SUBDOMAINS=wildcard
-      - VALIDATION=dns
-      - DNSPLUGIN=cloudflare #optional
-      - PROPAGATION= #optional
-      - DUCKDNSTOKEN= #optional
-      - EMAIL= #optional
-      - ONLY_SUBDOMAINS=false #optional
-      - EXTRA_DOMAINS= #optional
-      - STAGING=false #optional
-    volumes:
-      - ${ROOT_DIR}/config/swag-config:/config
-    ports:
-      - 443:443
-      - 80:80 #optional
     restart: unless-stopped
 
   sonarr:
