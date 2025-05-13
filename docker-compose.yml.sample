@@ -301,7 +301,7 @@ services:
       - 8080:80
       - 8443:443
     environment:
-      - PUID=${SPEEDTEST-TRACKER_UID}
+      - PUID=${SPEEDTEST_UID}
       - PGID=${MEDIACENTER_GID}
       - TZ=${TIMEZONE}
       - APP_KEY=base64:+oiq7T218bQUJe7ZI8znt765io3bUVUcQ8xeC/XSimc=
