@@ -25,6 +25,7 @@ sudo userdel homepage
 sudo userdel glances
 sudo userdel speedtest
 sudo userdel gluetun
+sudo userdel ddclient
 #sudo userdel homeassistant
 sudo groupdel mediacenter
 
