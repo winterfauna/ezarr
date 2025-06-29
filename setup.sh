@@ -106,6 +106,6 @@ sudo chown -R glances:mediacenter ${ROOT_DIR:.}/config/glances-config
 sudo chown -R gluetun:mediacenter ${ROOT_DIR:.}/config/gluetun-config
 sudo chown -R speedtest:mediacenter ${ROOT_DIR:.}/config/speedtest-config
 sudo chown -R ddclient:mediacenter ${ROOT_DIR:.}/config/ddclient-config
-sudo chown -R cloudlfared:mediacenter ${ROOT_DIR:.}/config/cloudflared-config
+sudo chown -R cloudflared:mediacenter ${ROOT_DIR:.}/config/cloudflared-config
 
 echo "Done! It is recommended to reboot now."
